@@ -27,6 +27,7 @@ var loop = function( t ) {
 	collide.update();
 	
 	effects.render();
+	player.render();
 	render.createRender( ship.thrusters.getRender() );
 	render.createRender( ship.getRender() );
 	alienManager.render();
@@ -119,10 +120,21 @@ var aabb = function( a, b ) {
 sprite.setSpriteFolder("sprites/");
 var sprites = [ 
 			"ship.png",
+			"ship0.png",
 			"thrust.png",
 			"bullet.png",
 			"alien0.png",
-			"explosion.png"
+			"explosion.png",
+			"chassis-0.png",
+			"wing-a.png",
+			"cannon-3.png",
+			"thruster-0.png",
+			"thruster-1.png",
+			"thruster-2.png",
+			"gun-0.png",
+			"gun-1.png",
+			"gun-2.png",
+			"test.png",
 		];
 sprite.queuePath( sprites );
 sprite.loadSprites( loop );
@@ -158,7 +170,8 @@ keyboardState.update = function() {
 		d = input.keyState[ 68 ],
 		s = input.keyState[ 83 ],
 		space = input.keyState[ 32 ],
-		shift = input.keyState[ 16 ];
+		shift = input.keyState[ 16 ],
+		bs = input.keyState[ 8 ];
 		
 	if ( /*l || u || r || da ||*/ a || w || d || s ) {
 		
@@ -210,11 +223,6 @@ keyboardState.update = function() {
 
 	}
 	
-	if ( shift ) {
-
-		input.keyState[ 16 ] = false;
-	}
-	
 	if ( space ) {
 		if ( space == "down" ) { 
 			ship.shoot();
@@ -223,19 +231,553 @@ keyboardState.update = function() {
 			input.keyState[ 32 ] = false;
 		}
 	}
+	
+	
+	
+	if ( u ) {
+		if ( u == "down" ) {
+			menu.nav( "u" );
+		}
+		input.keyState[ 38 ] = false;
+	}
+	
+	if ( da ) {
+		if ( da == "down" ) {
+			menu.nav( "da" );
+		}
+		input.keyState[ 40 ] = false;
+	}
+	
+	if ( shift ) {
+		if ( shift == "down" ) {
+			menu.nav( "choose" );
+		}
+		input.keyState[ 16 ] = false;
+	}
+	
+	if ( bs ) {
+		if ( bs == "down" ) {
+			menu.nav( "back" );;
+		}
+		input.keyState[ 8 ] = false;
+	}
+}
+
+
+var menu = {
+	tree: [],
+	current: -1,
+	category: null,
+	nav: function( key ) {
+		var list = listTest;
+		
+		if ( key == "choose" ) {
+			this.tree.push( this.current );
+			this.current = -1;
+		}
+		
+		if ( key == "back" ) {
+			if ( this.tree[ this.tree.length - 1 ] == "list" ) {
+				this.tree.pop();
+			}
+			this.tree.pop();
+			this.current = -1;
+		}
+		
+		if ( this.tree.length ) {
+			for( var i = 0; i < this.tree.length; ++i ) {
+				list = list[ this.tree[ i ] ];
+			}
+		}
+		
+		if ( list.list ) { 
+			this.tree.push( "list" )
+			list = list.list;
+		}
+		
+		
+		if ( this.current == -1 ) {
+			this.current = 0;
+		}
+		else {
+			if ( key == "da" ) {
+				menu.current = menu.current < list.length - 1 ? ++menu.current : 0;
+			}
+			else if ( key == "u" ) {
+				menu.current = menu.current > 0 ? --menu.current : list.length - 1;
+			}
+		}
+		
+		var info = list[ menu.current ];
+		if ( info ) {
+			this.category = info.name;
+			
+			console.log( info.name );
+		}
+		else { 
+			console.log( list )
+			player.parts[ list.type ] = list.name;
+			console.log( player )
+		}
+	}
+}
+
+var listTest = 	[
+		{
+			name: "Chassis",
+			type: "chassis",
+			list: [
+				{
+					name: "chassis0",
+					type: "chassis",
+					connectors: {
+						wingl: {
+							x: 0,
+							y: 16
+						},
+						wingr: {
+							x: 12,
+							y: 16
+						},
+						front: {
+							x: 6,
+							y: 6,
+						}
+					},
+					spriteData: {
+						sprite: "chassis-0",
+						w: 12,
+						h: 32,
+						index: 0
+					}
+				},
+				{
+					name: "chassis1",
+					type: "chassis",
+					connectors: {
+						wingl: {
+							x: 0,
+							y: 16
+						},
+						wingr: {
+							x: 12,
+							y: 16
+						},
+						front: {
+							x: 6,
+							y: 6,
+						}
+					},
+					spriteData: {
+						sprite: "chassis-0",
+						w: 12,
+						h: 32,
+						index: 0
+					}
+				},
+			],
+		},
+		{
+			name: "Wings",
+			type: "wing",
+			list: [
+				{
+					name: "winga",
+					type: "wing",
+					connectors: {
+						main: {
+							size: 4,
+							x: 10,
+							y: 12
+						},
+						slot0: {
+							size: 0,
+							x: 6,
+							y: 10
+						},
+						slot1: {
+							size: 1,
+							x: 5,
+							y: 16
+						},
+						slot2: {
+							size: 1,
+							x: 2,
+							y: 24
+						}
+					},
+					spriteData: {
+						sprite: "wing-a",
+						w: 11,
+						h: 28,
+						index: 0
+					}
+				},
+				{
+					name: "Razor-B",
+					connectors: {
+						main: {
+							size: 4,
+							x: 10,
+							y: 12
+						},
+						slot0: {
+							size: 0,
+							x: 6,
+							y: 10
+						},
+						slot1: {
+							size: 1,
+							x: 5,
+							y: 16
+						},
+						slot2: {
+							size: 1,
+							x: 2,
+							y: 24
+						}
+					},
+					spriteData: {
+						sprite: "wing-a",
+						w: 11,
+						h: 28,
+						index: 0
+					}
+				}
+			],
+		}
+]
+
+
+
+var player = {
+	x: 100,
+	y: 100,
+	parts: {
+		chassis: "chassis1",
+		wingl: "winga",
+		wingr: "winga",
+		slotMain: "cannon3",
+		thruster0l: "gun0",
+		thruster0r: "thruster0",
+		thruster1l: "thruster1",
+		thruster1r: "thruster2",
+		thruster2l: "gun2",
+		thruster2r: "gun2",
+	}
+}
+
+player.assemble = function( part ) {
+	// this.parts[ part.type ]
+}
+
+player.render = function() {
+	var pChassis = assemblies[ this.parts.chassis ];
+	var chassis = {
+		x: this.x,
+		y: this.y,
+		w: pChassis.spriteData.w,
+		h: pChassis.spriteData.h,
+		spriteData: pChassis.spriteData
+	}
+
+	var pWingl = assemblies[ this.parts.wingl ];
+	var wingl = {
+		x: chassis.x - pChassis.connectors.wingl.x - pWingl.connectors.main.x,
+		y: chassis.y + pChassis.connectors.wingl.y - pWingl.connectors.main.y,
+		w: pWingl.spriteData.w,
+		h: pWingl.spriteData.h,
+		spriteData: pWingl.spriteData
+	}
+	
+	var pWingr = assemblies[ this.parts.wingr ];
+	var wingr = {
+		x: chassis.x + pChassis.connectors.wingr.x - ( pWingr.spriteData.w - pWingl.connectors.main.x ),
+		y: chassis.y + pChassis.connectors.wingr.y - pWingr.connectors.main.y,
+		w: pWingr.spriteData.w,
+		h: pWingr.spriteData.h,
+		spriteData: pWingr.spriteData,
+		flip: true
+	}
+	
+	var pSlotMain = assemblies[ this.parts.slotMain ];
+	var slotMain = {
+		x: chassis.x + pChassis.connectors.front.x - pSlotMain.connectors.main.x,
+		y: chassis.y + pChassis.connectors.front.y - pSlotMain.connectors.main.y,
+		w: pSlotMain.spriteData.w,
+		h: pSlotMain.spriteData.h,
+		spriteData: pSlotMain.spriteData
+	}
+	
+	var pThruster0l = assemblies[ this.parts.thruster0l ];
+	var thruster0l = {
+		x: wingl.x + pWingl.connectors.slot0.x - pThruster0l.connectors.main.x,
+		y: wingl.y + pWingl.connectors.slot0.y - pThruster0l.connectors.main.y,
+		w: pThruster0l.spriteData.w,
+		h: pThruster0l.spriteData.h,
+		spriteData: pThruster0l.spriteData
+	}
+	
+	var pThruster0r = assemblies[ this.parts.thruster0r ];
+	var thruster0r = {
+		x: wingr.x + ( pWingr.spriteData.w - pWingr.connectors.slot0.x ) - ( pThruster0r.spriteData.w - pThruster0r.connectors.main.x ),
+		y: wingr.y + pWingr.connectors.slot0.y - pThruster0r.connectors.main.y,
+		w: pThruster0r.spriteData.w,
+		h: pThruster0r.spriteData.h,
+		spriteData: pThruster0r.spriteData,
+		flip: true
+	}
+	
+	var pThruster1l = assemblies[ this.parts.thruster1l ];
+	var thruster1l = {
+		x: wingl.x + pWingl.connectors.slot1.x - pThruster1l.connectors.main.x,
+		y: wingl.y + pWingl.connectors.slot1.y - pThruster1l.connectors.main.y,
+		w: pThruster1l.spriteData.w,
+		h: pThruster1l.spriteData.h,
+		spriteData: pThruster1l.spriteData
+	}
+	
+	var pThruster1r = assemblies[ this.parts.thruster1r ];
+	var thruster1r = {
+		x: wingr.x + ( pWingr.spriteData.w - pWingr.connectors.slot1.x ) - ( pThruster1r.spriteData.w - pThruster1r.connectors.main.x ),
+		y: wingr.y + pWingr.connectors.slot1.y - pThruster1r.connectors.main.y,
+		w: pThruster1r.spriteData.w,
+		h: pThruster1r.spriteData.h,
+		spriteData: pThruster1r.spriteData,
+		flip: true
+	}
+	
+	var pThruster2l = assemblies[ this.parts.thruster2l ];
+	var thruster2l = {
+		x: wingl.x + pWingl.connectors.slot2.x - pThruster2l.connectors.main.x,
+		y: wingl.y + pWingl.connectors.slot2.y - pThruster2l.connectors.main.y,
+		w: pThruster2l.spriteData.w,
+		h: pThruster2l.spriteData.h,
+		spriteData: pThruster2l.spriteData
+	}
+	
+	var pThruster2r = assemblies[ this.parts.thruster2r ];
+	var thruster2r = {
+		x: wingr.x + ( pWingr.spriteData.w - pWingr.connectors.slot2.x ) - ( pThruster2r.spriteData.w - pThruster2r.connectors.main.x ),
+		y: wingr.y + pWingr.connectors.slot2.y - pThruster2r.connectors.main.y,
+		w: pThruster2r.spriteData.w,
+		h: pThruster2r.spriteData.h,
+		spriteData: pThruster2r.spriteData,
+		flip: true
+	}
+	
+	render.createRender( thruster2r );
+	render.createRender( thruster2l );
+	render.createRender( thruster1r );
+	render.createRender( thruster1l );
+	render.createRender( thruster0r );
+	render.createRender( thruster0l );
+	render.createRender( wingl );
+	render.createRender( wingr );
+	render.createRender( chassis );
+	render.createRender( slotMain );
+}
+
+var assemblies = {
+	chassis0: {
+		connectors: {
+			wingl: {
+				x: 0,
+				y: 16
+			},
+			wingr: {
+				x: 12,
+				y: 16
+			},
+			front: {
+				x: 6,
+				y: 6,
+			}
+		},
+		spriteData: {
+			sprite: "chassis-0",
+			w: 12,
+			h: 32,
+			index: 0
+		}
+	},
+	chassis1: {
+		connectors: {
+			wingl: {
+				x: 0,
+				y: 16
+			},
+			wingr: {
+				x: 12,
+				y: 16
+			},
+			front: {
+				x: 6,
+				y: 6,
+			}
+		},
+		spriteData: {
+			sprite: "test",
+			w: 12,
+			h: 32,
+			index: 0
+		}
+	},
+	cannon3: {
+		connectors: {
+			main: {
+				x: 4,
+				y: 13
+			}
+		},
+		spriteData: {
+			sprite: "cannon-3",
+			w: 8,
+			h: 14,
+			index: 0
+		}
+	},
+	winga: {
+		connectors: {
+			main: {
+				size: 4,
+				x: 10,
+				y: 12
+			},
+			slot0: {
+				size: 0,
+				x: 6,
+				y: 10
+			},
+			slot1: {
+				size: 1,
+				x: 5,
+				y: 16
+			},
+			slot2: {
+				size: 1,
+				x: 2,
+				y: 24
+			}
+		},
+		spriteData: {
+			sprite: "wing-a",
+			w: 11,
+			h: 28,
+			index: 0
+		}
+	},
+	thruster0: {
+		connectors: {
+			main: {
+				size: 0,
+				x: 2,
+				y: 3
+			}
+		},
+		spriteData: {
+			sprite: "thruster-0",
+			w: 4,
+			h: 4,
+			index: 0
+		}
+	},
+	thruster1: {
+		connectors: {
+			main: {
+				size: 1,
+				x: 5,
+				y: 4
+			}
+		},
+		spriteData: {
+			sprite: "thruster-1",
+			w: 5,
+			h: 6,
+			index: 0
+		}
+	},
+	thruster2: {
+		connectors: {
+			main: {
+				size: 2,
+				x: 5,
+				y: 4
+			}
+		},
+		spriteData: {
+			sprite: "thruster-2",
+			w: 7,
+			h: 6,
+			index: 0
+		}
+	},
+	gun0: {
+		connectors: {
+			main: {
+				size: 0,
+				x: 4,
+				y: 5
+			}
+		},
+		spriteData: {
+			sprite: "gun-0",
+			w: 5,
+			h: 7,
+			index: 0
+		}
+	},
+	gun1: {
+		connectors: {
+			main: {
+				size: 1,
+				x: 6,
+				y: 6
+			}
+		},
+		spriteData: {
+			sprite: "gun-1",
+			w: 5,
+			h: 9,
+			index: 0
+		}
+	},
+	gun2: {
+		connectors: {
+			main: {
+				size: 2,
+				x: 7,
+				y: 6
+			}
+		},
+		spriteData: {
+			sprite: "gun-2",
+			w: 7,
+			h: 10,
+			index: 0
+		}
+	}
 }
 
 
 
 
 
+
+
+
+
+
+
+
+
 var ship = {};
-ship.w = 32;
-ship.h = 32;
+ship.w = 40;
+ship.h = 39;
 ship.x = stage.w * .5 - ship.w * .5;
 ship.y = stage.h - ship.h - 8;
 ship.speed = .2;
-ship.sprite = "ship";
+ship.sprite = "ship0";
 ship.attack = { 
 	speed: 500,
 	damage: 1
@@ -258,7 +800,7 @@ ship.thrusters = {
 			this.index != 3 ? this.index += 1 : this.index = 0;
 			
 			if ( this.right ) {
-				rndr.y = ship.y + ship.h * .5 - 2,
+				rndr.y = ship.y + ship.h * .5 + 12,
 				rndr.x = ship.x + ship.w - 3,
 				rndr.w = 8,
 				rndr.h = 4,
@@ -270,7 +812,7 @@ ship.thrusters = {
 				}
 			}
 			if ( this.left ) {
-				rndr.y = ship.y + ship.h * .5 - 2,
+				rndr.y = ship.y + ship.h * .5 + 12,
 				rndr.x = ship.x - 5,
 				rndr.w = 8,
 				rndr.h = 4,
